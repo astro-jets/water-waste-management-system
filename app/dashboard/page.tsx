@@ -1,22 +1,11 @@
 'use client'
 
 import React, { JSX, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import gsap from "gsap";
+import { motion } from "framer-motion";
 import {
-    FaTachometerAlt,
     FaFlask,
-    FaWaveSquare,
-    FaThermometerHalf,
-    FaTint,
-    FaCogs,
-    FaHistory,
-    FaBell,
-    FaFileDownload,
-    FaSignOutAlt,
-    FaBars,
+    FaBell
 } from "react-icons/fa";
-import TopBar from "@/components/TopBar";
 import MetricCard from "@/components/MetricCard";
 
 // Single-file full UI preview for the "Scientific Control Room" dashboard.
@@ -50,10 +39,9 @@ const initialSensors: Sensor[] = [
 ];
 
 export default function ControlRoomUI(): JSX.Element {
-    const [page, setPage] = useState<Page>("dashboard");
     const [sensors, setSensors] = useState<Sensor[]>(initialSensors);
     const [alerts, setAlerts] = useState<string[]>([]);
-    const [dosingAuto, setDosingAuto] = useState<boolean>(false);
+    // const [dosingAuto, setDosingAuto] = useState<boolean>(false);
 
     // Simulate incoming sensor updates (replace later with real Socket.IO hook)
     useEffect(() => {
@@ -127,13 +115,13 @@ export default function ControlRoomUI(): JSX.Element {
                         <div className="text-sm text-gray-400">Quick Controls</div>
                         <div className="mt-3 flex flex-col gap-2">
                             <button
-                                onClick={() => setDosingAuto(true)}
+                                // onClick={() => setDosingAuto(true)}
                                 className="px-4 py-2 rounded-xl bg-emerald-600/10 border border-emerald-600/30 text-emerald-300 hover:bg-emerald-600/20"
                             >
                                 Start Auto Dosing
                             </button>
                             <button
-                                onClick={() => setDosingAuto(false)}
+                                // onClick={() => setDosingAuto(false)}
                                 className="px-4 py-2 rounded-xl bg-red-600/10 border border-red-600/30 text-red-300 hover:bg-red-600/20"
                             >
                                 Stop Dosing

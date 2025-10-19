@@ -1,12 +1,9 @@
 "use client";
-import TopBar from "@/components/TopBar";
-import { useState } from "react";
-
 export default function AlertsPage() {
-    const [alerts, setAlerts] = useState([
+    const alerts = [
         "High turbidity detected at Intake A",
         "Chlorine below safe level",
-    ]);
+    ]
 
     return (
         <div className="">
