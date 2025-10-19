@@ -8,18 +8,6 @@ import {
 } from "react-icons/fa";
 import MetricCard from "@/components/MetricCard";
 
-// Single-file full UI preview for the "Scientific Control Room" dashboard.
-// Designed for Next.js + TypeScript + Tailwind + Framer Motion + GSAP.
-// This is a single React component that simulates multiple pages (Dashboard, Sensors, Alerts, Dosing, Reports, Settings, Login)
-
-type Page =
-    | "dashboard"
-    | "sensors"
-    | "alerts"
-    | "dosing"
-    | "reports"
-    | "settings"
-    | "login";
 
 type Sensor = {
     id: string;
