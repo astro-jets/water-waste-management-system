@@ -1,6 +1,4 @@
 "use client"
-
-import { useState } from "react";
 import { FaBars, FaSignOutAlt } from "react-icons/fa";
 
 const TopBar = () => {
