@@ -24,7 +24,7 @@ const nav = [
 
 
 const SideBar = () => {
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
+    const sidebarOpen = true;
     const [alerts, setAlerts] = useState<string[]>([]);
     const [dosingAuto, setDosingAuto] = useState<boolean>(false);
     const [page, setPage] = useState<Page>("dashboard");

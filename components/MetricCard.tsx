@@ -13,12 +13,6 @@ type Sensor = {
     lastUpdated: string;
 };
 
-const initialSensors: Sensor[] = [
-    { id: "ph", name: "pH Level", key: "ph", value: 7.12, unit: "", status: "normal", lastUpdated: new Date().toISOString() },
-    { id: "turb", name: "Turbidity", key: "turbidity", value: 3.8, unit: "NTU", status: "normal", lastUpdated: new Date().toISOString() },
-    { id: "temp", name: "Temperature", key: "temperature", value: 24.6, unit: "°C", status: "normal", lastUpdated: new Date().toISOString() },
-    { id: "chlor", name: "Residual Chlorine", key: "chlorine", value: 1.18, unit: "mg/L", status: "normal", lastUpdated: new Date().toISOString() },
-];
 
 const MetricCard = ({ sensor }: { sensor: Sensor }) => {
     const glow = sensor.status === "critical" ? "ring-red-500/30" : sensor.status === "warning" ? "ring-yellow-500/20" : "ring-emerald-400/10";

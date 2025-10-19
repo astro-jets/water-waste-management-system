@@ -4,14 +4,12 @@ import { useState } from "react";
 import { FaBars, FaSignOutAlt } from "react-icons/fa";
 
 const TopBar = () => {
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
-    const [loggedIn, setLoggedIn] = useState<boolean>(true);
     return (
         <div className="flex items-center justify-between gap-4 p-4">
             <div className="flex items-center gap-3">
                 <button
                     aria-label="toggle sidebar"
-                    onClick={() => setSidebarOpen((s) => !s)}
+                    // onClick={() => setSidebarOpen((s) => !s)}
                     className="p-2 rounded-lg hover:bg-white/5"
                 >
                     <FaBars />
@@ -26,9 +24,9 @@ const TopBar = () => {
                     <div className="text-xs text-gray-400">Novahiwa M.</div>
                 </div>
                 <button
-                    onClick={() => {
-                        setLoggedIn(false);
-                    }}
+                    // onClick={() => {
+                    //     setLoggedIn(false);
+                    // }}
                     className="bg-white/6 px-3 py-2 rounded-lg text-sm flex items-center gap-2"
                 >
                     <FaSignOutAlt /> Sign out
