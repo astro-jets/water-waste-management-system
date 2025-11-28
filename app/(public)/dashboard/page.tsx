@@ -1,59 +1,50 @@
+
 'use client'
 
 import React, { JSX, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import {
-    FaFlask,
-    FaBell
-} from "react-icons/fa";
+import { FaFlask, FaBell } from "react-icons/fa";
 import MetricCard from "@/components/MetricCard";
-
-
-type Sensor = {
-    id: string;
-    name: string;
-    key: string;
-    value: number;
-    unit: string;
-    status: "normal" | "warning" | "critical";
-    lastUpdated: string;
-};
-
-const initialSensors: Sensor[] = [
-    { id: "ph", name: "pH Level", key: "ph", value: 7.12, unit: "", status: "normal", lastUpdated: new Date().toISOString() },
-    { id: "turb", name: "Turbidity", key: "turbidity", value: 3.8, unit: "NTU", status: "normal", lastUpdated: new Date().toISOString() },
-    { id: "temp", name: "Temperature", key: "temperature", value: 24.6, unit: "°C", status: "normal", lastUpdated: new Date().toISOString() },
-    { id: "chlor", name: "Residual Chlorine", key: "chlorine", value: 1.18, unit: "mg/L", status: "normal", lastUpdated: new Date().toISOString() },
-];
+import { useSensorStore } from "@/store/useSensorStore";
+import { manualDose } from "@/actions/actions";
+import ChartComponent from "@/components/Chart";
+import { time } from "console";
 
 export default function ControlRoomUI(): JSX.Element {
-    const [sensors, setSensors] = useState<Sensor[]>(initialSensors);
     const [alerts, setAlerts] = useState<string[]>([]);
-    // const [dosingAuto, setDosingAuto] = useState<boolean>(false);
+    const [isDosing, setIsDosing] = useState(false);
+    const [dosingAmount, setDosingAmount] = useState<number>(0);
 
-    // Simulate incoming sensor updates (replace later with real Socket.IO hook)
-    useEffect(() => {
-        const id = setInterval(() => {
-            setSensors((prev) =>
-                prev.map((s) => {
-                    // gently vary values
-                    const jitter = (Math.random() - 0.5) * (s.key === "ph" ? 0.05 : 0.25);
-                    const newVal = Math.max(0, +(s.value + jitter).toFixed(2));
-                    return { ...s, value: newVal, lastUpdated: new Date().toISOString() };
-                })
-            );
+    const { tds, ph, temperature, timestamp } = useSensorStore((s) => s.data);
 
-            // randomly spawn an alert for demo
-            if (Math.random() > 0.985) {
-                setAlerts((a) => [`Sensor anomaly detected — check dosing`, ...a].slice(0, 8));
-            }
-        }, 2400);
-        return () => clearInterval(id);
-    }, []);
+    console.log(
+        {
+            tds, ph, temperature, timestamp
+        }
+    )
 
-
-    const avgPh = +(sensors.find((s) => s.key === "ph")?.value || 0).toFixed(2);
     const activeAlerts = alerts.length;
+
+    // ml → milliseconds
+    const MS_PER_ML = 25000 / 15;
+
+    const handleDose = async () => {
+        if (!dosingAmount || dosingAmount <= 0) return;
+
+        const ms = Math.round(dosingAmount * MS_PER_ML);
+
+        console.log("Sending dose time:", ms, "ms");
+
+        setIsDosing(true);
+        await manualDose(ms);
+
+        // Automatically reset dosing state after calculated time
+        setTimeout(() => {
+            setIsDosing(false);
+        }, ms + 1000); // Extra second buffer
+
+
+    };
 
     return (
         <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col gap-6">
@@ -63,7 +54,7 @@ export default function ControlRoomUI(): JSX.Element {
                         <div className="p-4 rounded-2xl bg-gradient-to-b from-[#071014]/50 to-[#041217]/30 border border-gray-800 flex items-center justify-between">
                             <div>
                                 <div className="text-xs text-gray-400">pH (avg)</div>
-                                <div className="text-3xl font-bold">{avgPh}</div>
+                                <div className="text-3xl font-bold">{ph}</div>
                                 <div className="text-sm text-gray-500">Last 1hour</div>
                             </div>
                             <div className="text-4xl text-emerald-300">{<FaFlask />}</div>
@@ -78,48 +69,60 @@ export default function ControlRoomUI(): JSX.Element {
                             <div className="text-4xl text-red-400">{<FaBell />}</div>
                         </div>
                     </div>
-
                     <div className="p-4 rounded-2xl bg-[#091014]/60 border border-gray-800 min-h-[260px] flex flex-col">
                         <div className="flex items-center justify-between mb-3">
                             <div>
                                 <div className="text-sm text-gray-400">Realtime Chart</div>
-                                <div className="text-xs text-gray-500">pH · Turbidity · Temperature</div>
+                                <div className="text-xs text-gray-500">pH · Turbidity · temperature</div>
                             </div>
                             <div className="text-xs text-gray-400">Streaming • {new Date().toLocaleTimeString()}</div>
                         </div>
 
-                        <div className="flex-1 flex items-center justify-center text-gray-600">[Charts placeholder — integrate Recharts or Chart.js]</div>
+                        <div className="flex-1 flex items-center justify-center text-gray-600">
+                            {/* <ChartComponent ph={10} tds={20} temperature={30} timestamp="" /> */}
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        {sensors.map((s) => (
-                            <MetricCard key={s.id} sensor={s} />
-                        ))}
+
+                        <MetricCard sensor={
+                            { key: 'tds', name: 'TDS', status: 'normal', unit: 'tds', value: tds as number, lastUpdated: timestamp as number }
+                        } />
+
+                        <MetricCard sensor={
+                            { key: 'temperature', name: 'temperature', status: 'normal', unit: '℃', value: (temperature as number), lastUpdated: timestamp as number }
+                        } />
+
                     </div>
                 </div>
 
                 <aside className="flex flex-col gap-4">
-                    <div className="p-4 rounded-2xl bg-[#091014]/60 border border-gray-800 min-h-[120px]">
+                    <div className="p-4 rounded-2xl bg-[#091014]/60 border border-gray-800 min-h-[150px]">
                         <div className="text-sm text-gray-400">Quick Controls</div>
+
+                        {/* NEW INPUT BOX */}
                         <div className="mt-3 flex flex-col gap-2">
+                            <input
+                                type="number"
+                                value={dosingAmount}
+                                onChange={(e) => setDosingAmount(Number(e.target.value))}
+                                placeholder="Enter ml"
+                                className="px-3 py-2 rounded-xl bg-black/30 border border-gray-700 text-gray-200"
+                            />
+
                             <button
-                                // onClick={() => setDosingAuto(true)}
-                                className="px-4 py-2 rounded-xl bg-emerald-600/10 border border-emerald-600/30 text-emerald-300 hover:bg-emerald-600/20"
+                                onClick={handleDose}
+                                disabled={isDosing}
+                                className={`cursor-pointer px-4 py-2 rounded-xl  hover:bg-emerald-600/20
+                                     ${isDosing ? "cursor-not-allowed opacity-50 border-amber-600/30 bg-amber-500 animate-pulse ease-in-out"
+                                        : "bg-emerald-600/10 border border-emerald-600/30 text-emerald-300"}`}
                             >
-                                Start Auto Dosing
-                            </button>
-                            <button
-                                // onClick={() => setDosingAuto(false)}
-                                className="px-4 py-2 rounded-xl bg-red-600/10 border border-red-600/30 text-red-300 hover:bg-red-600/20"
-                            >
-                                Stop Dosing
-                            </button>
-                            <button className="px-4 py-2 rounded-xl bg-yellow-600/10 border border-yellow-600/30 text-yellow-300 hover:bg-yellow-600/20">
-                                Calibrate Sensors
+                                {!isDosing ? "Dose Now" : "Dosing"}
                             </button>
                         </div>
                     </div>
 
+                    {/* alerts */}
                     <div className="p-4 rounded-2xl bg-[#071014]/60 border border-gray-800 flex-1 flex flex-col">
                         <div className="text-sm text-gray-400">Alerts</div>
                         <div className="mt-3 overflow-auto flex-1">
@@ -141,3 +144,4 @@ export default function ControlRoomUI(): JSX.Element {
         </motion.div>
     );
 }
+

@@ -4,13 +4,13 @@ import { motion } from "framer-motion";
 import { FaFlask, FaWaveSquare, FaThermometerHalf, FaTint } from "react-icons/fa";
 
 type Sensor = {
-    id: string;
+    // id: string;
     name: string;
     key: string;
     value: number;
     unit: string;
     status: "normal" | "warning" | "critical";
-    lastUpdated: string;
+    lastUpdated: number;
 };
 
 
